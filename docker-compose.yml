@@ -1,0 +1,120 @@
+version: '2'
+services:
+
+  # Balancer
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./log/nginx:/var/log/nginx/
+    ports:
+      - "80:80"
+    restart: always
+
+  # App
+  app1:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./log/app/app1:/var/log/
+    ports:
+      - "9011:9001"
+    depends_on:
+      - nginx
+    restart: always
+
+  app2:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./log/app/app2:/var/log/
+    ports:
+      - "9012:9001"
+    depends_on:
+      - nginx
+    restart: always
+
+  # DB
+  post_db1:
+    image: mysql:8.0.22
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "posts"
+      MYSQL_USER: "backend"
+      MYSQL_PASSWORD: "backend"
+    volumes:
+      #- ./data/mysql:/var/lib/mysql
+      - ./init/post:/docker-entrypoint-initdb.d
+    ports:
+      - "3316:3306"
+    restart: always
+
+  post_db2:
+    image: mysql:8.0.22
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "posts"
+      MYSQL_USER: "backend"
+      MYSQL_PASSWORD: "backend"
+    volumes:
+      - ./init/post:/docker-entrypoint-initdb.d
+    ports:
+      - "3326:3306"
+    restart: always
+
+  users_db1:
+    image: mysql:8.0.22
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "users"
+      MYSQL_USER: "backend"
+      MYSQL_PASSWORD: "backend"
+    volumes:
+      - ./init/user:/docker-entrypoint-initdb.d
+    ports:
+      - "3361:3306"
+    restart: always
+
+  users_db2:
+    image: mysql:8.0.22
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "users"
+      MYSQL_USER: "backend"
+      MYSQL_PASSWORD: "backend"
+    volumes:
+      - ./init/user:/docker-entrypoint-initdb.d
+    ports:
+      - "3362:3306"
+    restart: always
+
+  #MessageBus
+  rabbitmq:
+    image: rabbitmq:3.8.27-management
+    environment:
+      RABBITMQ_DEFAULT_USER: "backend"
+      RABBITMQ_DEFAULT_PASS: "backend"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    restart: always
+
+  # Memcached
+  memcached1:
+    image: memcached:1.5
+    restart: always
+
+  memcached2:
+    image: memcached:1.5
+    restart: always
+
+  memcached3:
+    image: memcached:1.5
+    restart: always
+
+  memcached4:
+    image: memcached:1.5
+    restart: always

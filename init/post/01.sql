@@ -1,0 +1,12 @@
+
+CREATE TABLE user_posts (
+    id INT NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content VARCHAR(512) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+CREATE INDEX usr_p_idx ON user_posts (user_id, created_at, deleted_at);
